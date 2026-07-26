@@ -6,7 +6,132 @@
     <title>Stockholm</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body> 
+    <div class="container">
+        <!-- FORM VIEW -->
+        <div id="invoice-form">
+            <h1>Stockholm</h1>
+            <h3>Invoice Generator</h3>
+
+            <div class="invoice-header">
+                <div class="company-details">
+                    <h2>From</h2>
+                    <input type="text" id="company-name" placeholder="Your Company Name">
+                    <input type="text" id="company-address" placeholder="Address">
+                    <input type="text" id="company-email" placeholder="Email">
+                </div>
+                <div class="invoice-details">
+                    <h2>Invoice</h2>
+                    <label>Invoice #</label>
+                    <input type="text" id="invoice-number" placeholder="INV-001">
+                    <label>Date</label>
+                    <input type="date" id="invoice-date">
+                </div>
+            </div>
+
+            <div class="client-details">
+                <h2>Bill To</h2>
+                <input type="text" id="client-name" placeholder="Client Name">
+                <input type="text" id="client-address" placeholder="Client Address">
+                <input type="text" id="client-email" placeholder="Client Email">
+            </div>
+
+            <table id="line-items">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="item-description" placeholder="Item description"></td>
+                        <td><input type="number" class="item-quantity" min="0" value="0"></td>
+                        <td><input type="number" class="item-price" min="0" step="0.01" value="0"></td>
+                        <td class="item-total">0.00</td>
+                        <td><button class="remove-row" type="button">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button id="add-item" type="button">Add Item</button>
+
+            <div class="totals">
+                <div class="totals-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">0.00</span>
+                </div>
+                <div class="totals-row">
+                    <span>Tax (10%):</span>
+                    <span id="tax">0.00</span>
+                </div>
+                <div class="totals-row total-final">
+                    <span>Total:</span>
+                    <span id="total">0.00</span>
+                </div>
+            </div>
+
+            <button id="generate-btn" type="button">Generate Invoice</button>
+        </div>
+
+        <!-- OUTPUT VIEW (HIDDEN BY DEFAULT) -->
+        <div id="invoice-output" class="hidden">
+            <div class="output-header">
+                <div class="output-company">
+                    <h1 id="output-company-name"></h1>
+                    <p id="output-company-address"></p>
+                    <p id="output-company-email"></p>
+                </div>
+                <div class="output-invoice-info">
+                    <h2>INVOICE</h2>
+                    <p>Invoice #: <span id="output-invoice-number"></span></p>
+                    <p>Date: <span id="output-invoice-date"></span></p>
+                </div>
+            </div>
+
+            <div class="output-client">
+                <h3>Bill To:</h3>
+                <p id="output-client-name"></p>
+                <p id="output-client-address"></p>
+                <p id="output-client-email"></p>
+            </div>
+
+            <table class="output-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="output-items"></tbody>
+            </table>
+
+            <div class="output-totals">
+                <div class="totals-row">
+                    <span>Subtotal:</span>
+                    <span id="output-subtotal"></span>
+                </div>
+                <div class="totals-row">
+                    <span>Tax (10%):</span>
+                    <span id="output-tax"></span>
+                </div>
+                <div class="totals-row total-final">
+                    <span>Total:</span>
+                    <span id="output-total"></span>
+                </div>
+            </div>
+
+            <div class="output-actions no-print">
+                <button id="edit-btn" type="button">Edit</button>
+                <button id="print-btn" type="button">Print</button>
+            </div>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
