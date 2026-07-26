@@ -67,3 +67,64 @@ addItemBtn.addEventListener('click', function() {
 
 // Delegate click events on the table body to handle Remove buttons
 lineItemsBody.addEventListener('click', handleRemoveRow);
+
+function generateInvoice() {
+    // Populate company, invoice, and client details in the output view
+    document.getElementById('output-company-name').textContent =
+        document.getElementById('company-name').value || 'Company Name';
+    document.getElementById('output-company-address').textContent =
+        document.getElementById('company-address').value || '';
+    document.getElementById('output-company-email').textContent =
+        document.getElementById('company-email').value || '';
+    document.getElementById('output-invoice-number').textContent =
+        document.getElementById('invoice-number').value || 'INV-001';
+    document.getElementById('output-invoice-date').textContent =
+        document.getElementById('invoice-date').value || new Date().toLocaleDateString();
+    document.getElementById('output-client-name').textContent =
+        document.getElementById('client-name').value || 'Client Name';
+    document.getElementById('output-client-address').textContent =
+        document.getElementById('client-address').value || '';
+    document.getElementById('output-client-email').textContent =
+        document.getElementById('client-email').value || '';
+
+    // Build output table rows from line items
+    var outputItems = document.getElementById('output-items');
+    outputItems.innerHTML = '';
+    var rows = lineItemsBody.querySelectorAll('tr');
+    for (var i = 0; i < rows.length; i++) {
+        var description = rows[i].querySelector('.item-description').value;
+        var quantity = rows[i].querySelector('.item-quantity').value;
+        var price = rows[i].querySelector('.item-price').value;
+        var lineTotal = rows[i].querySelector('.item-total').textContent;
+        if (description || parseFloat(quantity) > 0) {
+            var outputRow = document.createElement('tr');
+            outputRow.innerHTML =
+                '<td>' + description + '</td>' +
+                '<td>' + quantity + '</td>' +
+                '<td>' + parseFloat(price).toFixed(2) + '</td>' +
+                '<td>' + lineTotal + '</td>';
+            outputItems.appendChild(outputRow);
+        }
+    }
+
+    // Copy totals and switch to the output view
+    document.getElementById('output-subtotal').textContent =
+        document.getElementById('subtotal').textContent;
+    document.getElementById('output-tax').textContent =
+        document.getElementById('tax').textContent;
+    document.getElementById('output-total').textContent =
+        document.getElementById('total').textContent;
+    invoiceForm.classList.add('hidden');
+    invoiceOutput.classList.remove('hidden');
+}
+
+generateBtn.addEventListener('click', generateInvoice);
+
+editBtn.addEventListener('click', function() {
+    invoiceOutput.classList.add('hidden');
+    invoiceForm.classList.remove('hidden');
+});
+
+printBtn.addEventListener('click', function() {
+    window.print();
+});
