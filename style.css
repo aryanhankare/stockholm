@@ -1,0 +1,273 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.company-details,
+.invoice-details {
+    flex: 1;
+}
+
+.client-details {
+    margin-bottom: 30px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 4px;
+    margin-top: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+thead {
+    background-color: #2c3e50;
+    color: #fff;
+}
+
+th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+td input {
+    margin-bottom: 0;
+}
+
+.item-total {
+    font-weight: 600;
+    padding: 8px 12px;
+}
+
+.remove-row {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.remove-row:hover {
+    background-color: #c0392b;
+}
+
+#add-item {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+#add-item:hover {
+    background-color: #2980b9;
+}
+
+.totals {
+    margin-left: auto;
+    width: 300px;
+    margin-bottom: 30px;
+}
+
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.total-final {
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #2c3e50;
+    border-top: 2px solid #2c3e50;
+}
+
+#generate-btn {
+    background-color: #27ae60;
+    color: #fff;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 100%;
+}
+
+#generate-btn:hover {
+    background-color: #219a52;
+}
+
+.hidden {
+    display: none;
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #2c3e50;
+}
+
+.output-invoice-info h2 {
+    font-size: 2rem;
+    color: #2c3e50;
+}
+
+.output-client {
+    margin-bottom: 30px;
+}
+
+.output-table {
+    margin-bottom: 30px;
+}
+
+.output-table td {
+    padding: 12px;
+}
+
+.output-totals {
+    margin-left: auto;
+    width: 300px;
+    margin-bottom: 30px;
+}
+
+.output-actions {
+    display: flex;
+    gap: 10px;
+}
+
+#edit-btn {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+#edit-btn:hover {
+    background-color: #2980b9;
+}
+
+#print-btn {
+    background-color: #27ae60;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+#print-btn:hover {
+    background-color: #219a52;
+}
+
+@media print {
+    body {
+        background-color: #fff;
+    }
+
+    .container {
+        box-shadow: none;
+        margin: 0;
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .no-print {
+        display: none;
+    }
+
+    .output-table {
+        border: 1px solid #ddd;
+    }
+
+    .output-table th,
+    .output-table td {
+        border: 1px solid #ddd;
+    }
+}
