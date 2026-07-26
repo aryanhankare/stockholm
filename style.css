@@ -1,3 +1,4 @@
+
 * {
     margin: 0;
     padding: 0;
@@ -135,11 +136,59 @@ td input {
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.9rem;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 #add-item:hover {
     background-color: #2980b9;
+}
+
+.draft-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+#save-draft {
+    background-color: #8e44ad;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+#save-draft:hover {
+    background-color: #7d3c98;
+}
+
+#load-draft {
+    background-color: #2980b9;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+#load-draft:hover {
+    background-color: #2471a3;
+}
+
+#clear-draft {
+    background-color: #95a5a6;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+#clear-draft:hover {
+    background-color: #7f8c8d;
 }
 
 .totals {

@@ -1,3 +1,4 @@
+
 // Get references to DOM elements we'll use throughout the script
 var lineItemsBody = document.querySelector('#line-items tbody');
 var addItemBtn = document.getElementById('add-item');
@@ -6,6 +7,11 @@ var invoiceForm = document.getElementById('invoice-form');
 var invoiceOutput = document.getElementById('invoice-output');
 var editBtn = document.getElementById('edit-btn');
 var printBtn = document.getElementById('print-btn');
+
+// DOM variables for the draft feature buttons (Secret Mission)
+var saveDraftBtn = document.getElementById('save-draft');
+var loadDraftBtn = document.getElementById('load-draft');
+var clearDraftBtn = document.getElementById('clear-draft');
 
 // Loop through all table rows, calculate each line total, and update the summary
 function calculateTotals() {
@@ -28,15 +34,15 @@ function calculateTotals() {
     document.getElementById('total').textContent = total.toFixed(2);
 }
 
-// Build a new table row with the same structure as the starter row
+// Build a new table row with the same structure as the starter row (FULLY DETAILED)
 function createRow() {
     var row = document.createElement('tr');
     row.innerHTML =
-        '<td><input type="text" class="item-description" placeholder="Item description"></td>' +
-        '<td><input type="number" class="item-quantity" min="0" value="0"></td>' +
-        '<td><input type="number" class="item-price" min="0" step="0.01" value="0"></td>' +
-        '<td class="item-total">0.00</td>' +
-        '<td><button class="remove-row" type="button">Remove</button></td>';
+        '' +
+        '' +
+        '' +
+        '0.00' +
+        'Remove';
     return row;
 }
 
@@ -99,10 +105,10 @@ function generateInvoice() {
         if (description || parseFloat(quantity) > 0) {
             var outputRow = document.createElement('tr');
             outputRow.innerHTML =
-                '<td>' + description + '</td>' +
-                '<td>' + quantity + '</td>' +
-                '<td>' + parseFloat(price).toFixed(2) + '</td>' +
-                '<td>' + lineTotal + '</td>';
+                '' + description + '' +
+                '' + quantity + '' +
+                '' + parseFloat(price).toFixed(2) + '' +
+                '' + lineTotal + '';
             outputItems.appendChild(outputRow);
         }
     }
@@ -128,3 +134,79 @@ editBtn.addEventListener('click', function() {
 printBtn.addEventListener('click', function() {
     window.print();
 });
+
+// ==========================================
+// SECRET MISSION: LOCALSTORAGE DRAFT FUNCTIONS
+// ==========================================
+
+function saveDraft() {
+    var data = {
+        companyName: document.getElementById('company-name').value,
+        companyAddress: document.getElementById('company-address').value,
+        companyEmail: document.getElementById('company-email').value,
+        invoiceNumber: document.getElementById('invoice-number').value,
+        invoiceDate: document.getElementById('invoice-date').value,
+        clientName: document.getElementById('client-name').value,
+        clientAddress: document.getElementById('client-address').value,
+        clientEmail: document.getElementById('client-email').value,
+        items: []
+    };
+
+    var rows = lineItemsBody.querySelectorAll('tr');
+    for (var i = 0; i < rows.length; i++) {
+        data.items.push({
+            description: rows[i].querySelector('.item-description').value,
+            quantity: rows[i].querySelector('.item-quantity').value,
+            price: rows[i].querySelector('.item-price').value
+        });
+    }
+
+    localStorage.setItem('invoiceDraft', JSON.stringify(data));
+    alert('Draft saved!');
+}
+
+function loadDraft() {
+    var saved = localStorage.getItem('invoiceDraft');
+    if (!saved) {
+        alert('No saved draft found.');
+        return;
+    }
+
+    try {
+        var data = JSON.parse(saved);
+        document.getElementById('company-name').value = data.companyName || '';
+        document.getElementById('company-address').value = data.companyAddress || '';
+        document.getElementById('company-email').value = data.companyEmail || '';
+        document.getElementById('invoice-number').value = data.invoiceNumber || '';
+        document.getElementById('invoice-date').value = data.invoiceDate || '';
+        document.getElementById('client-name').value = data.clientName || '';
+        document.getElementById('client-address').value = data.clientAddress || '';
+        document.getElementById('client-email').value = data.clientEmail || '';
+
+        // Clear existing rows and rebuild from saved data
+        lineItemsBody.innerHTML = '';
+        for (var i = 0; i < data.items.length; i++) {
+            var row = createRow();
+            row.querySelector('.item-description').value = data.items[i].description || '';
+            row.querySelector('.item-quantity').value = data.items[i].quantity || 0;
+            row.querySelector('.item-price').value = data.items[i].price || 0;
+            lineItemsBody.appendChild(row);
+        }
+
+        calculateTotals();
+        alert('Draft loaded!');
+    } catch (error) {
+        alert('Error loading draft. The saved data may be corrupted.');
+        localStorage.removeItem('invoiceDraft');
+    }
+}
+
+function clearDraft() {
+    localStorage.removeItem('invoiceDraft');
+    alert('Draft cleared!');
+}
+
+// Wire up the draft buttons
+saveDraftBtn.addEventListener('click', saveDraft);
+loadDraftBtn.addEventListener('click', loadDraft);
+clearDraftBtn.addEventListener('click', clearDraft);
