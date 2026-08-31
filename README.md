@@ -62,6 +62,16 @@ Features planned include:
 - Mobile support
 - Community extensions
 
+Stockholm
+│
+├── inventory_agent.py
+│
+├── AI_Contribution_Log.md
+│   └── PEAS description
+│
+└── README.md
+    └── Agent architecture
+
 ## Tech Stack
 
 This project is being built progressively while I learn.
