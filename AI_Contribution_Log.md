@@ -93,5 +93,35 @@ rule-based decision making.
 It is currently a prototype and is not directly connected
 to a production database.
 
+## PEAS Description
+
+The Stockholm Inventory Agent can be described using the PEAS
+framework.
+
+### Performance Measure (P)
+- Correctly identify out-of-stock products.
+- Correctly identify products requiring reorder.
+- Avoid unnecessary reorder recommendations.
+
+### Environment (E)
+- Stockholm's inventory management environment.
+- Products and their available quantities.
+
+### Actuators (A)
+- Currently outputs the recommended action:
+  - REORDER
+  - NO_ACTION
+  - OUT_OF_STOCK
+
+### Sensors (S)
+- Product information.
+- Current inventory quantity.
+
+### Agent Type
+
+The implemented agent is a simple rule-based agent. It perceives
+inventory information, applies predefined decision rules, and
+produces an appropriate action recommendation.
+
 Future versions can connect the agent to Stockholm's inventory
 data and generate actual reorder recommendations.
