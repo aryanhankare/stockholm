@@ -1,115 +1,97 @@
 # Stockholm
 
-> An open-source, adaptive Inventory & Invoice Management Platform.
+Stockholm is an inventory and invoice management project being built as a learning project.
 
-## About
+## Current Project
 
-Stockholm is an open-source full-stack project that I am building while learning modern web development.
+The repository currently contains:
 
-The project began with a simple observation: most inventory and billing software is either expensive, subscription-based, locked to a specific industry, or difficult to customize. Small businesses often end up paying for features they don't need, while still lacking the flexibility they actually want.
+- Invoice generator frontend
+- Inventory management prototype
+- A simple rule-based inventory agent
+- AI Contribution Log for SLE-1
 
-My goal is to build a clean, developer-friendly and community-driven alternative.
+The inventory agent follows a basic:
 
-## Vision
+**Perceive → Decide → Act**
 
-The long-term vision of Stockholm is to become a universal business management platform.
+cycle.
 
-Instead of creating separate software for every industry, Stockholm aims to adapt itself to different business requirements.
+It currently checks product quantities and produces one of three decisions:
 
-Examples include:
+- `OUT_OF_STOCK` — quantity is 0 or below
+- `REORDER` — quantity is at or below the low-stock threshold
+- `NO_ACTION` — stock is above the threshold
 
-- Retail Stores
-- Grocery Shops
-- Restaurants
-- Cafés
-- Libraries
-- Pharmacies
-- Warehouses
-- Small Businesses
-- Service Providers
+The agent is currently a Python prototype and is not yet connected to the web application or a database.
 
-In the future, I plan to integrate an AI model capable of understanding a user's business requirements and automatically configuring the system for their use case.
+## Project Structure
 
-Rather than forcing users to adapt to the software, the software should adapt to the user.
-
-## Current Goal
-
-The current version focuses on building a solid foundation.
-
-Features planned include:
-
-- Authentication
-- Dashboard
-- Product Management
-- Customer Management
-- Supplier Management
-- Inventory Tracking
-- Invoice Generation
-- Purchase Orders
-- Sales Management
-- Reports & Analytics
-
-## Future Roadmap
-
-- Modular architecture
-- Multi-business support
-- AI-powered configuration
-- Plugin ecosystem
-- Barcode & QR support
-- Role-based access control
-- REST API
-- Cloud deployment
-- Mobile support
-- Community extensions
-
-Stockholm
-│
+```
+Stockholm/
+├── index.html
+├── style.css
+├── script.js
 ├── inventory_agent.py
-│
 ├── AI_Contribution_Log.md
-│   └── PEAS description
-│
-└── README.md
-    └── Agent architecture
+├── README.md
+└── .gitignore
+```
 
-## Tech Stack
+## Running the Inventory Agent
 
-This project is being built progressively while I learn.
+Make sure Python is installed, then run:
 
-Planned technologies include:
+```bash
+python inventory_agent.py
+```
+
+The program uses sample inventory data and prints the agent's decisions.
+
+## SLE-1
+
+The inventory agent was created as part of the Self-Learning Exercise (SLE-1).
+
+The repository includes an AI Contribution Log documenting:
+
+- AI tools used
+- AI-assisted parts
+- My own work
+- Issues and risks found
+- Fixes and limitations
+- PEAS description and agent type
+
+Only ChatGPT was used for AI assistance in this work. GitHub Copilot was not used.
+
+## Future Development
+
+The long-term plan is to connect the agent with Stockholm's inventory system and gradually add:
+
+- Real inventory and sales data
+- Better decision-making rules
+- Search and optimization
+- Demand analysis and prediction
+- Database integration
+- More useful actions such as alerts and purchase recommendations
+
+These features are planned and are not part of the current implementation.
+
+## Technology
+
+Currently used:
 
 - HTML
 - CSS
 - JavaScript
-- React
-- Node.js
-- Express.js
-- MySQL / PostgreSQL
+- Python
 - Git & GitHub
 
-Additional technologies will be added as the project evolves.
-
-## Open Source
-
-Stockholm is completely open source.
-
-Everyone is welcome to:
-
-- Use it
-- Study it
-- Contribute
-- Report issues
-- Suggest features
-- Improve the codebase
+More technologies may be added as the project develops.
 
 ## Project Status
 
-🚧 Under Active Development
-
-This repository documents my learning journey as I build Stockholm from the ground up.
-
-Every feature is implemented incrementally, so expect frequent commits and continuous improvements.
+Under active development.
 
 ## License
 
-Licensed under the MIT License.
+MIT License.
