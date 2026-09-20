@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stockholm — Inventory</title>
+  <link rel="stylesheet" href="ui_inventory.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <span>stockholm</span>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item active" href="#">
+          <span class="nav-icon">▦</span>
+          Inventory
+        </a>
+        <a class="nav-item" href="#"><span class="nav-icon">↗</span> Sales</a>
+        <a class="nav-item" href="#"><span class="nav-icon">□</span> Invoices</a>
+        <a class="nav-item" href="#"><span class="nav-icon">◌</span> Customers</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="agent-mini">
+          <div class="agent-dot"></div>
+          <div>
+            <strong>Stockholm Agent</strong>
+            <span>Monitoring inventory</span>
+          </div>
+        </div>
+        <a class="nav-item" href="#"><span class="nav-icon">⚙</span> Settings</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumbs">Workspace <span>/</span> Inventory</div>
+        <div class="top-actions">
+          <button class="icon-button" title="Search">⌕</button>
+          <div class="avatar">AH</div>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">OPERATIONS</p>
+            <h1>Inventory</h1>
+            <p class="subtitle">A clear view of what you have, what's moving, and what needs attention.</p>
+          </div>
+          <button class="primary-button" id="add-product">+ Add product</button>
+        </div>
+
+        <div class="summary">
+          <div class="summary-item">
+            <span>PRODUCTS</span>
+            <strong id="product-count">31</strong>
+          </div>
+          <div class="summary-item warning">
+            <span>LOW STOCK</span>
+            <strong id="low-stock-count">2</strong>
+          </div>
+          <div class="summary-item danger">
+            <span>OUT OF STOCK</span>
+            <strong id="out-stock-count">1</strong>
+          </div>
+          <div class="summary-item">
+            <span>REORDER VALUE</span>
+            <strong id="reorder-count">25 units</strong>
+          </div>
+        </div>
+
+        <div class="workspace-grid">
+          <section class="inventory-panel">
+            <div class="toolbar">
+              <div class="search-box">
+                <span>⌕</span>
+                <input id="search" type="search" placeholder="Search products...">
+              </div>
+              <select id="filter">
+                <option value="all">All status</option>
+                <option value="healthy">Healthy</option>
+                <option value="reorder">Reorder</option>
+                <option value="out">Out of stock</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>PRODUCT</th>
+                    <th>STOCK</th>
+                    <th>VELOCITY</th>
+                    <th>LEAD TIME</th>
+                    <th>STATUS</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-body"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="attention-panel">
+            <div class="attention-head">
+              <div>
+                <p class="eyebrow">STOCKHOLM AGENT</p>
+                <h2>Attention</h2>
+              </div>
+              <span class="live-pill"><i></i> LIVE</span>
+            </div>
+
+            <p class="agent-summary" id="agent-summary">Checking your inventory...</p>
+            <div id="attention-list" class="attention-list"></div>
+
+            <div class="agent-note">
+              <span>↗</span>
+              <p>The agent considers stock, sales velocity, pending orders and supplier lead time before recommending a reorder.</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ui_inventory.js"></script>
+</body>
+</html>
