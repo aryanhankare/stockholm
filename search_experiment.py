@@ -43,95 +43,65 @@ def dfs(graph, start, target):
     return None, nodes_explored
 
 
-# -----------------------------
-# SMALL GRAPH - 9 NODES
-# -----------------------------
+# Larger warehouse graph
+warehouse_graph = {
+    "Receiving": [
+        "Storage-A", "Storage-B", "Storage-C",
+        "Storage-D", "Storage-E", "Storage-F"
+    ],
 
-small_graph = {
-    "Receiving": ["Storage-A", "Storage-B"],
-    "Storage-A": ["Receiving", "Rice", "Wheat"],
-    "Storage-B": ["Receiving", "Oil", "Sugar"],
-    "Rice": ["Storage-A", "Packing"],
-    "Wheat": ["Storage-A", "Packing"],
-    "Oil": ["Storage-B", "Packing"],
-    "Sugar": ["Storage-B", "Packing"],
-    "Packing": ["Rice", "Wheat", "Oil", "Sugar", "Dispatch"],
-    "Dispatch": ["Packing"]
+    "Storage-A": ["Receiving", "Rice", "Wheat", "Flour", "Dal"],
+    "Storage-B": ["Receiving", "Oil", "Sugar", "Salt", "Spices"],
+    "Storage-C": ["Receiving", "Tea", "Coffee", "Biscuits", "Noodles"],
+    "Storage-D": ["Receiving", "Soap", "Shampoo", "Toothpaste", "Detergent"],
+    "Storage-E": ["Receiving", "Milk", "Butter", "Cheese", "Curd"],
+    "Storage-F": ["Receiving", "Juice", "Water", "Chips", "Cookies"],
+
+    "Rice": ["Storage-A"],
+    "Wheat": ["Storage-A"],
+    "Flour": ["Storage-A"],
+    "Dal": ["Storage-A"],
+
+    "Oil": ["Storage-B"],
+    "Sugar": ["Storage-B"],
+    "Salt": ["Storage-B"],
+    "Spices": ["Storage-B"],
+
+    "Tea": ["Storage-C"],
+    "Coffee": ["Storage-C"],
+    "Biscuits": ["Storage-C"],
+    "Noodles": ["Storage-C"],
+
+    "Soap": ["Storage-D"],
+    "Shampoo": ["Storage-D"],
+    "Toothpaste": ["Storage-D"],
+    "Detergent": ["Storage-D"],
+
+    "Milk": ["Storage-E"],
+    "Butter": ["Storage-E"],
+    "Cheese": ["Storage-E"],
+    "Curd": ["Storage-E"],
+
+    "Juice": ["Storage-F"],
+    "Water": ["Storage-F"],
+    "Chips": ["Storage-F"],
+    "Cookies": ["Storage-F"]
 }
 
-
-# -----------------------------
-# MEDIUM GRAPH - 15 NODES
-# -----------------------------
-
-medium_graph = {
-    **small_graph,
-
-    "Storage-C": ["Receiving", "Dal", "Flour"],
-    "Dal": ["Storage-C", "Packing"],
-    "Flour": ["Storage-C", "Packing"],
-
-    "Storage-D": ["Receiving", "Tea", "Coffee"],
-    "Tea": ["Storage-D", "Packing"],
-    "Coffee": ["Storage-D", "Packing"]
-}
-
-medium_graph["Receiving"] = [
-    "Storage-A",
-    "Storage-B",
-    "Storage-C",
-    "Storage-D"
-]
-
-
-# -----------------------------
-# LARGE GRAPH - 21 NODES
-# -----------------------------
-
-large_graph = {
-    **medium_graph,
-
-    "Storage-E": ["Receiving", "Biscuits", "Spices"],
-    "Biscuits": ["Storage-E", "Packing"],
-    "Spices": ["Storage-E", "Packing"],
-
-    "Storage-F": ["Receiving", "Salt", "Soap"],
-    "Salt": ["Storage-F", "Packing"],
-    "Soap": ["Storage-F", "Packing"]
-}
-
-large_graph["Receiving"] = [
-    "Storage-A",
-    "Storage-B",
-    "Storage-C",
-    "Storage-D",
-    "Storage-E",
-    "Storage-F"
-]
-
-
-# -----------------------------
-# TEST CASES
-# -----------------------------
 
 test_cases = [
-    ("Rice", small_graph),
-    ("Wheat", small_graph),
-
-    ("Oil", medium_graph),
-    ("Sugar", medium_graph),
-    ("Dal", medium_graph),
-
-    ("Tea", large_graph),
-    ("Biscuits", large_graph),
-    ("Salt", large_graph),
-    ("Dispatch", large_graph)
+    "Rice",
+    "Flour",
+    "Oil",
+    "Salt",
+    "Tea",
+    "Biscuits",
+    "Soap",
+    "Milk",
+    "Juice",
+    "Cookies"
 ]
 
-
-# -----------------------------
-# EXPERIMENT
-# -----------------------------
 
 print("\nBFS vs DFS - Stockholm Search Experiment")
 print("-" * 100)
@@ -141,65 +111,83 @@ print(
     f"{'Target':<12}"
     f"{'BFS Nodes':<12}"
     f"{'DFS Nodes':<12}"
-    f"{'BFS Time (s)':<18}"
-    f"{'DFS Time (s)':<18}"
+    f"{'BFS Time (ms)':<18}"
+    f"{'DFS Time (ms)':<18}"
 )
 
 print("-" * 100)
 
 
-for target, graph in test_cases:
+total_bfs_time = 0
+total_dfs_time = 0
+total_bfs_nodes = 0
+total_dfs_nodes = 0
 
-    # Find nodes explored
+
+for target in test_cases:
+
     bfs_path, bfs_nodes = bfs(
-        graph,
+        warehouse_graph,
         "Receiving",
         target
     )
 
     dfs_path, dfs_nodes = dfs(
-        graph,
+        warehouse_graph,
         "Receiving",
         target
     )
 
-    # BFS: 5 independent runs
+    # Each benchmark call performs 1000 searches.
+    # This makes the measured workload large enough
+    # for a visible timing difference.
+
     bfs_runs = timeit.repeat(
         lambda: bfs(
-            graph,
+            warehouse_graph,
             "Receiving",
             target
         ),
         repeat=5,
-        number=10000
+        number=1000
     )
 
-    # DFS: 5 independent runs
     dfs_runs = timeit.repeat(
         lambda: dfs(
-            graph,
+            warehouse_graph,
             "Receiving",
             target
         ),
         repeat=5,
-        number=10000
+        number=1000
     )
 
-    # Average time per search
-    bfs_time = sum(bfs_runs) / (5 * 10000)
-    dfs_time = sum(dfs_runs) / (5 * 10000)
+    bfs_time = (sum(bfs_runs) / 5) * 1000
+    dfs_time = (sum(dfs_runs) / 5) * 1000
 
-    graph_size = len(graph)
+    total_bfs_time += bfs_time
+    total_dfs_time += dfs_time
+
+    total_bfs_nodes += bfs_nodes
+    total_dfs_nodes += dfs_nodes
 
     print(
-        f"{graph_size:<12}"
+        f"{len(warehouse_graph):<12}"
         f"{target:<12}"
         f"{bfs_nodes:<12}"
         f"{dfs_nodes:<12}"
-        f"{bfs_time:<18.10f}"
-        f"{dfs_time:<18.10f}"
+        f"{bfs_time:<18.4f}"
+        f"{dfs_time:<18.4f}"
     )
 
 
 print("-" * 100)
-print("Each timing result = average of 5 runs × 10,000 iterations.")
+
+print(f"Average BFS time: {total_bfs_time / len(test_cases):.4f} ms")
+print(f"Average DFS time: {total_dfs_time / len(test_cases):.4f} ms")
+
+print(f"Total BFS nodes explored: {total_bfs_nodes}")
+print(f"Total DFS nodes explored: {total_dfs_nodes}")
+
+print("\nEach timing = average of 5 runs.")
+print("Each run performs 1,000 searches on the same warehouse graph.")
