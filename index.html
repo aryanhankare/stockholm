@@ -1,145 +1,82 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stockholm</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stockholm — Inventory</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body> 
-    <div class="container">
-        <!-- FORM VIEW -->
-        <div id="invoice-form">
-            <h1>Stockholm</h1>
-            <h3>Invoice Generator</h3>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">S</div><span>stockholm</span></div>
+      <nav class="nav">
+        <a class="nav-item active" href="#"><span class="nav-icon">▦</span>Inventory</a>
+        <a class="nav-item" href="#"><span class="nav-icon">↗</span>Sales</a>
+        <a class="nav-item" href="#"><span class="nav-icon">□</span>Invoices</a>
+        <a class="nav-item" href="#"><span class="nav-icon">◌</span>Customers</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="agent-mini"><div class="agent-dot"></div><div><strong>Stockholm Agent</strong><span>Monitoring inventory</span></div></div>
+        <a class="nav-item" href="#"><span class="nav-icon">⚙</span>Settings</a>
+      </div>
+    </aside>
 
-            <div class="invoice-header">
-                <div class="company-details">
-                    <h2>From</h2>
-                    <input type="text" id="company-name" placeholder="Your Company Name">
-                    <input type="text" id="company-address" placeholder="Address">
-                    <input type="text" id="company-email" placeholder="Email">
-                </div>
-                <div class="invoice-details">
-                    <h2>Invoice</h2>
-                    <label>Invoice #</label>
-                    <input type="text" id="invoice-number" placeholder="INV-001">
-                    <label>Date</label>
-                    <input type="date" id="invoice-date">
-                </div>
-            </div>
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumbs">Workspace <span>/</span> Inventory</div>
+        <div class="top-actions"><button class="icon-button" title="Search">⌕</button><div class="avatar">AH</div></div>
+      </header>
 
-            <div class="client-details">
-                <h2>Bill To</h2>
-                <input type="text" id="client-name" placeholder="Client Name">
-                <input type="text" id="client-address" placeholder="Client Address">
-                <input type="text" id="client-email" placeholder="Client Email">
-            </div>
-
-            <table id="line-items">
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><input type="text" class="item-description" placeholder="Item description"></td>
-                        <td><input type="number" class="item-quantity" min="0" value="0"></td>
-                        <td><input type="number" class="item-price" min="0" step="0.01" value="0"></td>
-                        <td class="item-total">0.00</td>
-                        <td><button class="remove-row" type="button">Remove</button></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <button id="add-item" type="button">Add Item</button>
-
-            <!-- Secret Mission Draft Action Buttons -->
-            <div class="draft-actions">
-                <button id="save-draft" type="button">Save Draft</button>
-                <button id="load-draft" type="button">Load Draft</button>
-                <button id="clear-draft" type="button">Clear Draft</button>
-            </div>
-
-            <div class="totals">
-                <div class="totals-row">
-                    <span>Subtotal:</span>
-                    <span id="subtotal">0.00</span>
-                </div>
-                <div class="totals-row">
-                    <span>Tax (10%):</span>
-                    <span id="tax">0.00</span>
-                </div>
-                <div class="totals-row total-final">
-                    <span>Total:</span>
-                    <span id="total">0.00</span>
-                </div>
-            </div>
-
-            <button id="generate-btn" type="button">Generate Invoice</button>
+      <section class="content">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">OPERATIONS</p>
+            <h1>Inventory</h1>
+            <p class="subtitle">A clear view of what you have, what's moving, and what needs attention.</p>
+          </div>
+          <button class="primary-button" id="add-product">+ Add product</button>
         </div>
 
-        <!-- OUTPUT VIEW (HIDDEN BY DEFAULT) -->
-        <div id="invoice-output" class="hidden">
-            <div class="output-header">
-                <div class="output-company">
-                    <h1 id="output-company-name"></h1>
-                    <p id="output-company-address"></p>
-                    <p id="output-company-email"></p>
-                </div>
-                <div class="output-invoice-info">
-                    <h2>INVOICE</h2>
-                    <p>Invoice #: <span id="output-invoice-number"></span></p>
-                    <p>Date: <span id="output-invoice-date"></span></p>
-                </div>
-            </div>
-
-            <div class="output-client">
-                <h3>Bill To:</h3>
-                <p id="output-client-name"></p>
-                <p id="output-client-address"></p>
-                <p id="output-client-email"></p>
-            </div>
-
-            <table class="output-table">
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody id="output-items"></tbody>
-            </table>
-
-            <div class="output-totals">
-                <div class="totals-row">
-                    <span>Subtotal:</span>
-                    <span id="output-subtotal"></span>
-                </div>
-                <div class="totals-row">
-                    <span>Tax (10%):</span>
-                    <span id="output-tax"></span>
-                </div>
-                <div class="totals-row total-final">
-                    <span>Total:</span>
-                    <span id="output-total"></span>
-                </div>
-            </div>
-
-            <div class="output-actions no-print">
-                <button id="edit-btn" type="button">Edit</button>
-                <button id="print-btn" type="button">Print</button>
-            </div>
+        <div class="summary">
+          <div class="summary-item"><span>PRODUCTS</span><strong id="product-count">31</strong></div>
+          <div class="summary-item warning"><span>LOW STOCK</span><strong id="low-stock-count">2</strong></div>
+          <div class="summary-item danger"><span>OUT OF STOCK</span><strong id="out-stock-count">1</strong></div>
+          <div class="summary-item"><span>REORDER VALUE</span><strong id="reorder-count">25 units</strong></div>
         </div>
-    </div>
-    <script src="script.js"></script>
+
+        <div class="workspace-grid">
+          <section class="inventory-panel">
+            <div class="toolbar">
+              <div class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Search products..."></div>
+              <select id="filter">
+                <option value="all">All status</option>
+                <option value="healthy">Healthy</option>
+                <option value="reorder">Reorder</option>
+                <option value="out">Out of stock</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>PRODUCT</th><th>STOCK</th><th>VELOCITY</th><th>LEAD TIME</th><th>STATUS</th></tr></thead>
+                <tbody id="inventory-body"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="attention-panel">
+            <div class="attention-head">
+              <div><p class="eyebrow">STOCKHOLM AGENT</p><h2>Attention</h2></div>
+              <span class="live-pill"><i></i> LIVE</span>
+            </div>
+            <p class="agent-summary" id="agent-summary">Checking your inventory...</p>
+            <div id="attention-list" class="attention-list"></div>
+            <div class="agent-note"><span>↗</span><p>The agent considers stock, sales velocity, pending orders and supplier lead time before recommending a reorder.</p></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="ui_inventory.js"></script>
 </body>
 </html>
