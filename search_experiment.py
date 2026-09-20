@@ -43,49 +43,32 @@ def dfs(graph, start, target):
     return None, nodes_explored
 
 
-# Larger warehouse graph
+# Small warehouse graph: 18 nodes
 warehouse_graph = {
-    "Receiving": [
-        "Storage-A", "Storage-B", "Storage-C",
-        "Storage-D", "Storage-E", "Storage-F"
-    ],
+    "Receiving": ["Storage-A", "Storage-B", "Storage-C", "Storage-D", "Storage-E"],
 
-    "Storage-A": ["Receiving", "Rice", "Wheat", "Flour", "Dal"],
-    "Storage-B": ["Receiving", "Oil", "Sugar", "Salt", "Spices"],
-    "Storage-C": ["Receiving", "Tea", "Coffee", "Biscuits", "Noodles"],
-    "Storage-D": ["Receiving", "Soap", "Shampoo", "Toothpaste", "Detergent"],
-    "Storage-E": ["Receiving", "Milk", "Butter", "Cheese", "Curd"],
-    "Storage-F": ["Receiving", "Juice", "Water", "Chips", "Cookies"],
+    "Storage-A": ["Receiving", "Rice", "Wheat", "Flour"],
+    "Storage-B": ["Receiving", "Oil", "Sugar", "Salt"],
+    "Storage-C": ["Receiving", "Tea", "Coffee"],
+    "Storage-D": ["Receiving", "Soap", "Shampoo"],
+    "Storage-E": ["Receiving", "Milk", "Butter"],
 
     "Rice": ["Storage-A"],
     "Wheat": ["Storage-A"],
     "Flour": ["Storage-A"],
-    "Dal": ["Storage-A"],
 
     "Oil": ["Storage-B"],
     "Sugar": ["Storage-B"],
     "Salt": ["Storage-B"],
-    "Spices": ["Storage-B"],
 
     "Tea": ["Storage-C"],
     "Coffee": ["Storage-C"],
-    "Biscuits": ["Storage-C"],
-    "Noodles": ["Storage-C"],
 
     "Soap": ["Storage-D"],
     "Shampoo": ["Storage-D"],
-    "Toothpaste": ["Storage-D"],
-    "Detergent": ["Storage-D"],
 
     "Milk": ["Storage-E"],
-    "Butter": ["Storage-E"],
-    "Cheese": ["Storage-E"],
-    "Curd": ["Storage-E"],
-
-    "Juice": ["Storage-F"],
-    "Water": ["Storage-F"],
-    "Chips": ["Storage-F"],
-    "Cookies": ["Storage-F"]
+    "Butter": ["Storage-E"]
 }
 
 
@@ -95,11 +78,9 @@ test_cases = [
     "Oil",
     "Salt",
     "Tea",
-    "Biscuits",
+    "Coffee",
     "Soap",
-    "Milk",
-    "Juice",
-    "Cookies"
+    "Butter"
 ]
 
 
@@ -138,10 +119,7 @@ for target in test_cases:
         target
     )
 
-    # Each benchmark call performs 1000 searches.
-    # This makes the measured workload large enough
-    # for a visible timing difference.
-
+    # Each timing performs 1000 searches.
     bfs_runs = timeit.repeat(
         lambda: bfs(
             warehouse_graph,
