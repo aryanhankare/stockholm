@@ -1,3 +1,4 @@
+import sys
 import timeit
 
 
@@ -84,88 +85,130 @@ test_cases = [
 ]
 
 
-print("\nBFS vs DFS - Stockholm Search Experiment")
-print("-" * 100)
+def run_pyspy_workload(algorithm):
+    """
+    Dedicated workload for py-spy.
 
-print(
-    f"{'Graph Size':<12}"
-    f"{'Target':<12}"
-    f"{'BFS Nodes':<12}"
-    f"{'DFS Nodes':<12}"
-    f"{'BFS Time (ms)':<18}"
-    f"{'DFS Time (ms)':<18}"
-)
+    A longer workload gives py-spy enough execution time to collect
+    useful samples and generate a readable flame graph.
+    """
+    target = "Butter"
+    repetitions = 100000
 
-print("-" * 100)
+    search_function = bfs if algorithm == "bfs" else dfs
 
+    print(f"\npy-spy profiling mode: {algorithm.upper()}")
+    print(f"Target: {target}")
+    print(f"Search repetitions: {repetitions}")
 
-total_bfs_time = 0
-total_dfs_time = 0
-total_bfs_nodes = 0
-total_dfs_nodes = 0
+    total_nodes = 0
 
-
-for target in test_cases:
-
-    bfs_path, bfs_nodes = bfs(
-        warehouse_graph,
-        "Receiving",
-        target
-    )
-
-    dfs_path, dfs_nodes = dfs(
-        warehouse_graph,
-        "Receiving",
-        target
-    )
-
-    # Each timing performs 1000 searches.
-    bfs_runs = timeit.repeat(
-        lambda: bfs(
+    for _ in range(repetitions):
+        _, nodes = search_function(
             warehouse_graph,
             "Receiving",
             target
-        ),
-        repeat=5,
-        number=1000
-    )
+        )
+        total_nodes += nodes
 
-    dfs_runs = timeit.repeat(
-        lambda: dfs(
-            warehouse_graph,
-            "Receiving",
-            target
-        ),
-        repeat=5,
-        number=1000
-    )
+    print(f"Total nodes explored: {total_nodes}")
 
-    bfs_time = (sum(bfs_runs) / 5) * 1000
-    dfs_time = (sum(dfs_runs) / 5) * 1000
 
-    total_bfs_time += bfs_time
-    total_dfs_time += dfs_time
-
-    total_bfs_nodes += bfs_nodes
-    total_dfs_nodes += dfs_nodes
+def run_experiment():
+    print("\nBFS vs DFS - Stockholm Search Experiment")
+    print("-" * 100)
 
     print(
-        f"{len(warehouse_graph):<12}"
-        f"{target:<12}"
-        f"{bfs_nodes:<12}"
-        f"{dfs_nodes:<12}"
-        f"{bfs_time:<18.4f}"
-        f"{dfs_time:<18.4f}"
+        f"{'Graph Size':<12}"
+        f"{'Target':<12}"
+        f"{'BFS Nodes':<12}"
+        f"{'DFS Nodes':<12}"
+        f"{'BFS Time (ms)':<18}"
+        f"{'DFS Time (ms)':<18}"
     )
 
+    print("-" * 100)
 
-print("-" * 100)
+    total_bfs_time = 0
+    total_dfs_time = 0
+    total_bfs_nodes = 0
+    total_dfs_nodes = 0
 
-print(f"Average BFS time: {total_bfs_time / len(test_cases):.4f} ms")
-print(f"Average DFS time: {total_dfs_time / len(test_cases):.4f} ms")
+    for target in test_cases:
 
-print(f"Total BFS nodes explored: {total_bfs_nodes}")
-print(f"Total DFS nodes explored: {total_dfs_nodes}")
+        bfs_path, bfs_nodes = bfs(
+            warehouse_graph,
+            "Receiving",
+            target
+        )
 
-print("\nEach timing = average of 5 runs.")
-print("Each run performs 1,000 searches on the same warehouse graph.")
+        dfs_path, dfs_nodes = dfs(
+            warehouse_graph,
+            "Receiving",
+            target
+        )
+
+        # Each timing performs 1000 searches.
+        bfs_runs = timeit.repeat(
+            lambda: bfs(
+                warehouse_graph,
+                "Receiving",
+                target
+            ),
+            repeat=5,
+            number=1000
+        )
+
+        dfs_runs = timeit.repeat(
+            lambda: dfs(
+                warehouse_graph,
+                "Receiving",
+                target
+            ),
+            repeat=5,
+            number=1000
+        )
+
+        bfs_time = (sum(bfs_runs) / 5) * 1000
+        dfs_time = (sum(dfs_runs) / 5) * 1000
+
+        total_bfs_time += bfs_time
+        total_dfs_time += dfs_time
+
+        total_bfs_nodes += bfs_nodes
+        total_dfs_nodes += dfs_nodes
+
+        print(
+            f"{len(warehouse_graph):<12}"
+            f"{target:<12}"
+            f"{bfs_nodes:<12}"
+            f"{dfs_nodes:<12}"
+            f"{bfs_time:<18.4f}"
+            f"{dfs_time:<18.4f}"
+        )
+
+    print("-" * 100)
+
+    print(f"Average BFS time: {total_bfs_time / len(test_cases):.4f} ms")
+    print(f"Average DFS time: {total_dfs_time / len(test_cases):.4f} ms")
+
+    print(f"Total BFS nodes explored: {total_bfs_nodes}")
+    print(f"Total DFS nodes explored: {total_dfs_nodes}")
+
+    print("\nEach timing = average of 5 runs.")
+    print("Each run performs 1,000 searches on the same warehouse graph.")
+
+
+if __name__ == "__main__":
+    # Use:
+    # python search_experiment.py
+    # for the normal SLE-2 comparison.
+    #
+    # Use:
+    # python search_experiment.py bfs
+    # python search_experiment.py dfs
+    # for dedicated py-spy profiling workloads.
+    if len(sys.argv) == 2 and sys.argv[1].lower() in {"bfs", "dfs"}:
+        run_pyspy_workload(sys.argv[1].lower())
+    else:
+        run_experiment()
