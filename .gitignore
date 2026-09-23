@@ -145,3 +145,6 @@ vite.config.ts.timestamp-*
 # Python cache
 __pycache__/
 *.py[cod]
+
+# py-spy [flamegraph](profiling) output
+sle2_profile.svg
