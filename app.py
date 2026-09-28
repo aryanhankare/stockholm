@@ -1,8 +1,7 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
 from inventory_agent import InventoryAgent
 
 app = Flask(__name__)
-
 agent = InventoryAgent()
 
 DEFAULT_INVENTORY = [
@@ -13,16 +12,6 @@ DEFAULT_INVENTORY = [
 ]
 
 
-@app.route("/")
-def home():
-    return send_from_directory(".", "index.html")
-
-
-@app.route("/<path:filename>")
-def serve_frontend_file(filename):
-    return send_from_directory(".", filename)
-
-
 @app.route("/api/inventory")
 def get_inventory():
     return jsonify(DEFAULT_INVENTORY)
@@ -30,19 +19,8 @@ def get_inventory():
 
 @app.route("/api/agent", methods=["POST"])
 def run_agent():
-    inventory = request.json or DEFAULT_INVENTORY
-
-    decisions = agent.decide(inventory)
-
-    for decision in decisions:
-        path = agent.search_location(decision["product"])
-
-        if path:
-            decision["location"] = " -> ".join(path)
-        else:
-            decision["location"] = "Not found"
-
-    return jsonify(decisions)
+    inventory = request.get_json(silent=True) or DEFAULT_INVENTORY
+    return jsonify(agent.run(inventory))
 
 
 if __name__ == "__main__":
