@@ -2,10 +2,17 @@ from warehouse_search import bfs
 
 
 class InventoryAgent:
+    """Rule-based inventory agent for Stockholm.
 
-    def __init__(self, low_stock_threshold=10, base_target_stock=25):
+    The agent observes inventory data, estimates demand, decides what should
+    happen, and uses BFS to locate products in the warehouse.
+    """
+
+    def __init__(self, low_stock_threshold=10, base_target_stock=25, safety_days=2):
         self.low_stock_threshold = low_stock_threshold
         self.base_target_stock = base_target_stock
+        self.safety_days = safety_days
+        self.last_cycle = []
 
         self.warehouse = {
             "Receiving": ["Storage-A", "Storage-B"],
@@ -18,16 +25,26 @@ class InventoryAgent:
         }
 
     def perceive(self, inventory):
+        """Observe the current inventory state."""
         return inventory
 
     def calculate_sales_velocity(self, sold, days):
+        """Calculate average units sold per day."""
+        if days <= 0:
+            return 0
         return sold / days
 
+    def calculate_target_stock(self, sales_velocity, lead_time):
+        """Keep enough stock for supplier lead time plus a safety buffer."""
+        coverage_days = max(7, lead_time + self.safety_days)
+        demand_stock = int(sales_velocity * coverage_days)
+        return max(self.base_target_stock, demand_stock)
+
     def decide(self, inventory):
-        actions = []
+        """Analyze inventory and choose a recommended action for each product."""
+        decisions = []
 
         for product in inventory:
-
             name = product["name"]
             quantity = product["quantity"]
             sold = product["sold"]
@@ -35,45 +52,26 @@ class InventoryAgent:
             lead_time = product["lead_time"]
             pending_order = product["pending_order"]
 
-            sales_velocity = self.calculate_sales_velocity(
-                sold,
-                days
-            )
-
-            demand_stock = int(sales_velocity * 7)
-
-            target_stock = max(
-                self.base_target_stock,
-                demand_stock
-            )
-
-            available_after_pending = (
-                quantity + pending_order
-            )
+            sales_velocity = self.calculate_sales_velocity(sold, days)
+            target_stock = self.calculate_target_stock(sales_velocity, lead_time)
+            available_after_pending = quantity + pending_order
 
             if quantity <= 0:
                 action = "OUT_OF_STOCK"
                 urgency = "HIGH"
-
             elif available_after_pending < target_stock:
-
                 action = "REORDER"
-
                 if quantity <= self.low_stock_threshold or lead_time >= 7:
                     urgency = "HIGH"
                 else:
                     urgency = "MEDIUM"
-
             else:
                 action = "NO_ACTION"
                 urgency = "LOW"
 
-            reorder_quantity = max(
-                0,
-                target_stock - available_after_pending
-            )
+            reorder_quantity = max(0, target_stock - available_after_pending)
 
-            actions.append({
+            decisions.append({
                 "product": name,
                 "quantity": quantity,
                 "sales_velocity": sales_velocity,
@@ -85,105 +83,66 @@ class InventoryAgent:
                 "reorder_quantity": reorder_quantity
             })
 
-        return actions
+        return decisions
 
     def search_location(self, product_name):
+        """Find a product's warehouse path using BFS."""
+        name_map = {"Cooking Oil": "Oil"}
+        search_name = name_map.get(product_name, product_name)
 
-        name_map = {
-            "Cooking Oil": "Oil"
-        }
+        return bfs(self.warehouse, "Receiving", search_name)
 
-        search_name = name_map.get(
-            product_name,
-            product_name
-        )
-
-        path = bfs(
-            self.warehouse,
-            "Receiving",
-            search_name
-        )
-
-        return path
-
-    def act(self, decisions):
+    def plan_actions(self, decisions):
+        """Turn decisions into explicit agent action plans."""
+        plans = []
 
         for decision in decisions:
+            path = self.search_location(decision["product"])
+            location = " -> ".join(path) if path else "Not found"
 
-            product = decision["product"]
-            action = decision["action"]
-            urgency = decision["urgency"]
-            velocity = decision["sales_velocity"]
-            lead_time = decision["lead_time"]
-            pending_order = decision["pending_order"]
-            reorder_quantity = decision["reorder_quantity"]
-
-            path = self.search_location(product)
-
-            if path:
-                location = " -> ".join(path)
+            if decision["action"] == "OUT_OF_STOCK":
+                next_action = "EMERGENCY_REORDER"
+            elif decision["action"] == "REORDER":
+                next_action = "PLACE_REORDER"
             else:
-                location = "Not found"
+                next_action = "MONITOR"
 
-            print(
-                f"{product}: {action} | "
-                f"Urgency: {urgency} | "
-                f"Sales/day: {velocity:.2f} | "
-                f"Lead time: {lead_time} days | "
-                f"Pending: {pending_order} units | "
-                f"Reorder: {reorder_quantity} units | "
-                f"Location: {location}"
-            )
+            plan = decision.copy()
+            plan["next_action"] = next_action
+            plan["location"] = location
+            plans.append(plan)
+
+        return plans
+
+    def act(self, plans):
+        """Record the planned actions without pretending to place real orders."""
+        self.last_cycle = plans
+        return plans
 
     def run(self, inventory):
-
+        """Run one observe -> analyze -> plan -> act cycle."""
         current_state = self.perceive(inventory)
-
         decisions = self.decide(current_state)
-
-        self.act(decisions)
+        plans = self.plan_actions(decisions)
+        return self.act(plans)
 
 
 if __name__ == "__main__":
-
     inventory = [
-        {
-            "name": "Rice",
-            "quantity": 10,
-            "sold": 20,
-            "days": 7,
-            "lead_time": 7,
-            "pending_order": 5
-        },
-        {
-            "name": "Cooking Oil",
-            "quantity": 25,
-            "sold": 8,
-            "days": 7,
-            "lead_time": 3,
-            "pending_order": 0
-        },
-        {
-            "name": "Sugar",
-            "quantity": 0,
-            "sold": 15,
-            "days": 7,
-            "lead_time": 5,
-            "pending_order": 10
-        },
-        {
-            "name": "Wheat",
-            "quantity": 12,
-            "sold": 5,
-            "days": 7,
-            "lead_time": 2,
-            "pending_order": 15
-        }
+        {"name": "Rice", "quantity": 10, "sold": 20, "days": 7, "lead_time": 7, "pending_order": 5},
+        {"name": "Cooking Oil", "quantity": 25, "sold": 8, "days": 7, "lead_time": 3, "pending_order": 0},
+        {"name": "Sugar", "quantity": 0, "sold": 15, "days": 7, "lead_time": 5, "pending_order": 10},
+        {"name": "Wheat", "quantity": 12, "sold": 5, "days": 7, "lead_time": 2, "pending_order": 15}
     ]
 
-    agent = InventoryAgent(
-        low_stock_threshold=10,
-        base_target_stock=25
-    )
+    agent = InventoryAgent()
 
-    agent.run(inventory)
+    for result in agent.run(inventory):
+        print(
+            f"{result['product']}: {result['next_action']} | "
+            f"Urgency: {result['urgency']} | "
+            f"Sales/day: {result['sales_velocity']:.2f} | "
+            f"Target: {result['target_stock']} | "
+            f"Reorder: {result['reorder_quantity']} | "
+            f"Location: {result['location']}"
+        )
