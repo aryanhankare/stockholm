@@ -47,8 +47,7 @@ class InventoryAgent:
             pending_order = product["pending_order"]
 
             sales_velocity = self.calculate_sales_velocity(
-                sold,
-                days
+                sold, days
             )
 
             demand_stock = int(
@@ -65,12 +64,10 @@ class InventoryAgent:
             )
 
             if quantity <= 0:
-
                 action = "EMERGENCY_REORDER"
                 urgency = "HIGH"
 
             elif available_after_pending < target_stock:
-
                 action = "PLACE_REORDER"
 
                 if (
@@ -82,7 +79,6 @@ class InventoryAgent:
                     urgency = "MEDIUM"
 
             else:
-
                 action = "MONITOR"
                 urgency = "LOW"
 
@@ -92,7 +88,6 @@ class InventoryAgent:
             )
 
             if action == "EMERGENCY_REORDER":
-
                 reason = (
                     f"{name} is out of stock. "
                     f"Sales velocity is "
@@ -100,7 +95,6 @@ class InventoryAgent:
                 )
 
             elif action == "PLACE_REORDER":
-
                 reason = (
                     f"{name} has {quantity} units available "
                     f"and {pending_order} units pending. "
@@ -109,7 +103,6 @@ class InventoryAgent:
                 )
 
             else:
-
                 reason = (
                     f"{name} has enough stock considering "
                     f"pending orders. Available after pending "
@@ -133,24 +126,19 @@ class InventoryAgent:
         return actions
 
     def plan_actions(self, decisions):
-
         plans = []
 
         for decision in decisions:
 
-            if decision["action"] == "EMERGENCY_REORDER":
-
-                plan = "Create emergency reorder immediately."
-
-            elif decision["action"] == "PLACE_REORDER":
-
+            if decision["action"] in [
+                "PLACE_REORDER",
+                "EMERGENCY_REORDER"
+            ]:
                 plan = (
-                    f"Prepare reorder for "
+                    f"Place order for "
                     f"{decision['reorder_quantity']} units."
                 )
-
             else:
-
                 plan = "Continue monitoring inventory."
 
             plans.append({
@@ -175,44 +163,34 @@ class InventoryAgent:
             product_name
         )
 
-        path = bfs(
+        return bfs(
             self.warehouse,
             "Receiving",
             search_name
         )
 
-        return path
-
-    def act(self, decisions):
+    def act(self, inventory, decisions):
 
         for decision in decisions:
 
-            product = decision["product"]
+            product_name = decision["product"]
             action = decision["action"]
-            urgency = decision["urgency"]
-            velocity = decision["sales_velocity"]
-            target_stock = decision["target_stock"]
             reorder_quantity = decision["reorder_quantity"]
 
-            path = self.search_location(product)
+            for product in inventory:
 
-            if path:
-                location = " -> ".join(path)
-            else:
-                location = "Not found"
+                if product["name"] != product_name:
+                    continue
 
-            output = (
-                f"{product}: {action} | "
-                f"Urgency: {urgency} | "
-                f"Sales/day: {velocity:.2f} | "
-                f"Target: {target_stock} | "
-                f"Reorder: {reorder_quantity} | "
-                f"Location: {location}"
-            )
+                if action in [
+                    "PLACE_REORDER",
+                    "EMERGENCY_REORDER"
+                ]:
+                    product["pending_order"] += reorder_quantity
 
-            print(output)
-            print(f"Reason: {decision['reason']}")
-            print()
+                break
+
+        return inventory
 
     def run(self, inventory):
 
@@ -222,13 +200,45 @@ class InventoryAgent:
 
         plans = self.plan_actions(decisions)
 
+        updated_inventory = self.act(
+            current_state,
+            decisions
+        )
+
         self.last_cycle = {
             "input": current_state,
             "decisions": decisions,
-            "plans": plans
+            "plans": plans,
+            "updated_inventory": updated_inventory
         }
 
-        self.act(decisions)
+        for decision in decisions:
+
+            path = self.search_location(
+                decision["product"]
+            )
+
+            location = (
+                " -> ".join(path)
+                if path
+                else "Not found"
+            )
+
+            print(
+                f"{decision['product']}: "
+                f"{decision['action']} | "
+                f"Urgency: {decision['urgency']} | "
+                f"Sales/day: {decision['sales_velocity']:.2f} | "
+                f"Target: {decision['target_stock']} | "
+                f"Reorder: {decision['reorder_quantity']} | "
+                f"Location: {location}"
+            )
+
+            print(
+                f"Reason: {decision['reason']}"
+            )
+
+            print()
 
         return self.last_cycle
 
@@ -270,10 +280,9 @@ if __name__ == "__main__":
         }
     ]
 
-    agent = InventoryAgent(
-        low_stock_threshold=10,
-        base_target_stock=25,
-        safety_stock_days=2
-    )
+    agent = InventoryAgent()
 
-    agent.run(inventory)
+    result = agent.run(inventory)
+
+    print("UPDATED INVENTORY:")
+    print(result["updated_inventory"])
