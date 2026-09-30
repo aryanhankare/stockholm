@@ -47,7 +47,8 @@ class InventoryAgent:
             pending_order = product["pending_order"]
 
             sales_velocity = self.calculate_sales_velocity(
-                sold, days
+                sold,
+                days
             )
 
             demand_stock = int(
@@ -192,7 +193,20 @@ class InventoryAgent:
 
         return inventory
 
-    def run(self, inventory):
+    def receive_orders(self, inventory):
+
+        for product in inventory:
+
+            pending = product["pending_order"]
+
+            if pending > 0:
+
+                product["quantity"] += pending
+                product["pending_order"] = 0
+
+        return inventory
+
+    def run(self, inventory, receive_orders=False):
 
         current_state = self.perceive(inventory)
 
@@ -204,6 +218,11 @@ class InventoryAgent:
             current_state,
             decisions
         )
+
+        if receive_orders:
+            updated_inventory = self.receive_orders(
+                updated_inventory
+            )
 
         self.last_cycle = {
             "input": current_state,
@@ -282,7 +301,20 @@ if __name__ == "__main__":
 
     agent = InventoryAgent()
 
+    print("=== AGENT CYCLE ===")
     result = agent.run(inventory)
 
-    print("UPDATED INVENTORY:")
+    print("=== AFTER REORDER ===")
+    print(result["updated_inventory"])
+
+    print()
+    print("=== RECEIVING ORDERS ===")
+
+    result = agent.run(
+        result["updated_inventory"],
+        receive_orders=True
+    )
+
+    print()
+    print("=== AFTER DELIVERY ===")
     print(result["updated_inventory"])
