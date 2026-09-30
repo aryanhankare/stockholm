@@ -1,44 +1,74 @@
 # Stockholm
 
-Stockholm is an inventory and invoice management project being built as a learning project.
+Stockholm is a learning project focused on building an intelligent inventory management agent.
 
-## Current Project
+The current project is intentionally small: the main focus is the Python inventory agent and the warehouse search it uses.
 
-The repository currently contains:
+## Current Focus
 
-- Invoice generator frontend
-- Inventory management prototype
-- A simple rule-based inventory agent
-- AI Contribution Log for SLE-1
+The `InventoryAgent` follows a simple **Perceive → Decide → Act** cycle.
 
-The inventory agent follows a basic:
+It currently:
 
-**Perceive → Decide → Act**
+- reads inventory state
+- calculates sales velocity
+- estimates target stock using demand, lead time and safety stock
+- considers pending orders
+- decides whether to monitor, place a reorder, or perform an emergency reorder
+- assigns urgency to the decision
+- calculates the required reorder quantity
+- explains the reason for its decision
+- locates products in a warehouse graph using BFS
+- updates pending orders after a reorder decision
+- can simulate receiving pending orders
 
-cycle.
+The current agent is rule-based. It is designed as a foundation that can become more advanced as the project develops.
 
-It currently checks product quantities and produces one of three decisions:
+## Agent Decision Flow
 
-- `OUT_OF_STOCK` — quantity is 0 or below
-- `REORDER` — quantity is at or below the low-stock threshold
-- `NO_ACTION` — stock is above the threshold
-
-The agent is currently a Python prototype and is not yet connected to the web application or a database.
-
-## Project Structure
-
+```text
+Inventory State
+      |
+      v
+  Perception
+      |
+      v
+Sales Velocity
+      |
+      v
+Decision Engine
+      |
+      +----> MONITOR
+      |
+      +----> PLACE_REORDER
+      |
+      +----> EMERGENCY_REORDER
+      |
+      v
+Warehouse Location
+      |
+      v
+Action / Order Update
+      |
+      v
+Receive Orders
 ```
+
+## Main Files
+
+```text
 Stockholm/
-├── index.html
-├── style.css
-├── script.js
-├── inventory_agent.py
-├── AI_Contribution_Log.md
-├── README.md
-└── .gitignore
+├── inventory_agent.py      # Main inventory agent
+├── warehouse_search.py     # BFS warehouse search used by the agent
+├── app.py                  # Small Flask API entry point
+├── search_experiment.py    # SLE-2 BFS vs DFS experiment
+├── architecture.md         # SLE-3 C4 architecture
+├── sle2.md                 # SLE-2 documentation
+├── AI_Contribution_Log.md  # AI-assisted development record
+└── README.md
 ```
 
-## Running the Inventory Agent
+## Running the Agent
 
 Make sure Python is installed, then run:
 
@@ -46,51 +76,63 @@ Make sure Python is installed, then run:
 python inventory_agent.py
 ```
 
-The program uses sample inventory data and prints the agent's decisions.
+The program uses sample inventory data and prints the agent's decisions, reasons, warehouse locations and inventory state after the reorder/receiving cycle.
 
-## SLE-1
+## Example Decisions
 
-The inventory agent was created as part of the Self-Learning Exercise (SLE-1).
+For the included sample data, the agent can produce decisions such as:
 
-The repository includes an AI Contribution Log documenting:
+- `PLACE_REORDER` — additional stock is required after considering pending orders.
+- `EMERGENCY_REORDER` — the product is currently out of stock.
+- `MONITOR` — available stock including pending orders is sufficient for the current target.
 
-- AI tools used
-- AI-assisted parts
-- My own work
-- Issues and risks found
-- Fixes and limitations
-- PEAS description and agent type
+## Warehouse Search
 
-Only ChatGPT was used for AI assistance in this work. GitHub Copilot was not used.
+The agent uses Breadth-First Search (BFS) from `warehouse_search.py` to find a product's path from `Receiving` through the warehouse graph.
 
-## Future Development
+The BFS vs DFS comparison was developed separately as SLE-2 and is documented in `sle2.md`.
 
-The long-term plan is to connect the agent with Stockholm's inventory system and gradually add:
+## SLE Work
 
-- Real inventory and sales data
-- Better decision-making rules
-- Search and optimization
-- Demand analysis and prediction
-- Database integration
-- More useful actions such as alerts and purchase recommendations
+### SLE-1
 
-These features are planned and are not part of the current implementation.
+The project includes an AI Contribution Log documenting the use of ChatGPT during development, the student's contribution, testing, limitations and the PEAS description of the agent.
+
+### SLE-2
+
+SLE-2 compares BFS and DFS on a warehouse graph using execution time and nodes explored, with additional profiling using `py-spy`.
+
+### SLE-3
+
+SLE-3 documents Stockholm using the C4 architecture model:
+
+1. Context
+2. Container
+3. Component
+4. Code
+
+## Current Limitations
+
+The current prototype uses sample/manual inventory data and rule-based decisions. It does not use a production database, machine-learning demand prediction, real supplier integration or autonomous external purchasing.
+
+These are future development possibilities, not current features.
+
+## Future Direction
+
+The project will be developed gradually as my understanding of AI and intelligent agents improves. Possible future work includes better demand analysis, richer inventory state, supplier information, improved search/optimization and more capable decision-making.
 
 ## Technology
 
-Currently used:
-
-- HTML
-- CSS
-- JavaScript
 - Python
-- Git & GitHub
-
-More technologies may be added as the project develops.
+- Flask
+- Git
+- GitHub
 
 ## Project Status
 
-Under active development.
+**Under active development.**
+
+The current priority is improving and documenting the inventory agent rather than building a separate invoice or frontend application.
 
 ## License
 
