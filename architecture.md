@@ -1,246 +1,249 @@
 # Stockholm Architecture
 
-Stockholm is an inventory and invoice management system.
+Stockholm is a learning project focused on an intelligent inventory management agent.
+
+The current implementation is intentionally centered on the Python Inventory Agent and the warehouse search it uses.
 
 ## Main Parts
 
-* Web Interface — handles user interaction and invoice UI.
-* Flask Backend — connects the web interface with the Python backend.
-* Inventory Agent — analyzes inventory data and decides actions.
-* Warehouse Search — finds product locations using BFS.
-* Invoice Processing — calculates and generates invoice information.
+- **Inventory Agent** — analyzes inventory state and makes inventory decisions.
+- **Warehouse Search** — finds product locations using BFS.
+- **Flask API** — provides a small programmatic entry point for inventory data and agent execution.
+- **SLE-2 Search Experiment** — compares BFS and DFS on a separate warehouse-search workload.
 
-## SLE-3
+The previously used invoice/frontend files are no longer part of the current project architecture.
 
-This document contains the C4 architecture documentation for Stockholm:
+## SLE-3 — C4 Architecture
+
+This document describes Stockholm at four levels:
 
 1. Context
 2. Container
 3. Component
 4. Code
 
-## C4 Level 1 — Context
+---
 
-### System Context
+# C4 Level 1 — Context
 
 ```text
-                    BUSINESS OWNER / USER
-                             |
-                    uses / interacts with
-                             |
-                             v
-              +-----------------------------+
-              |          STOCKHOLM          |
-              |                             |
-              | Inventory + Invoice         |
-              | Management System           |
-              +-----------------------------+
+                  BUSINESS USER / OPERATOR
+                           |
+                           | inventory data / requests
+                           v
+                +--------------------------+
+                |        STOCKHOLM         |
+                |                          |
+                |  Inventory Agent         |
+                |  + Warehouse Search      |
+                +--------------------------+
+                           |
+                           v
+                    Inventory decisions
+                    and order updates
 ```
 
-### Business Owner / User
+### Business User / Operator
 
-The business owner or operator uses Stockholm to manage inventory,
-generate invoices, search for products, and view inventory decisions.
+The user supplies or manages inventory information and uses the agent's output to understand which products need attention.
 
 ### External Systems
 
-No external systems are currently required by the implemented Stockholm prototype.
+No external production systems are currently required by the implemented prototype.
 
-## C4 Level 2 — Container
+---
 
-### Container Diagram
+# C4 Level 2 — Container
 
 ```text
-                    BUSINESS OWNER / USER
-                             |
-                             v
-                    +------------------+
-                    |  WEB INTERFACE   |
-                    |  index.html      |
-                    |  script.js       |
-                    +--------+---------+
-                             |
-                             v
-                    +------------------+
-                    |  FLASK BACKEND   |
-                    |     app.py       |
-                    +--------+---------+
-                             |
-                             v
-                    +------------------+
-                    | INVENTORY AGENT  |
-                    | inventory_agent |
-                    |     .py          |
-                    +--------+---------+
-                             |
-                             v
-                    +------------------+
-                    | WAREHOUSE SEARCH |
-                    | warehouse_search |
-                    |     .py          |
-                    +------------------+
+                 BUSINESS USER / OPERATOR
+                           |
+                           v
+                 +--------------------+
+                 |    Flask API       |
+                 |      app.py        |
+                 +---------+----------+
+                           |
+                           v
+                 +--------------------+
+                 |   Inventory Agent  |
+                 | inventory_agent.py  |
+                 +---------+----------+
+                           |
+                           v
+                 +--------------------+
+                 |  Warehouse Search  |
+                 | warehouse_search.py|
+                 +--------------------+
+                           |
+                           v
+                          BFS
 ```
 
-### Containers
-
-#### 1. Web Interface
-
-**Technology:** HTML, CSS and JavaScript
-**Files:** `index.html`, `script.js`
-
-Handles user interaction and displays inventory and invoice-related information.
-
-#### 2. Flask Backend
+### 1. Flask API
 
 **Technology:** Python / Flask
+
 **File:** `app.py`
 
-Provides the web server and API endpoints. It receives inventory data,
-calls the Inventory Agent, and returns the decisions to the Web Interface.
+Provides a small API entry point for inventory data and agent execution. It creates an `InventoryAgent` and calls the agent's decision logic.
 
-#### 3. Inventory Agent
+### 2. Inventory Agent
 
 **Technology:** Python
+
 **File:** `inventory_agent.py`
 
-Analyzes inventory data and makes inventory decisions based on stock,
-sales, lead time and pending orders.
+This is the main reasoning container. It perceives inventory state, calculates sales velocity, determines target stock, selects an action and urgency, plans the action, updates pending orders and can simulate receiving those orders.
 
-#### 4. Warehouse Search
+### 3. Warehouse Search
 
 **Technology:** Python / BFS
+
 **File:** `warehouse_search.py`
 
-Searches the warehouse graph and finds the location/path of a product.
+Contains the BFS implementation used by the Inventory Agent to locate products in the warehouse graph.
 
-## C4 Level 3 — Component
+### SLE-2 Search Experiment
 
-### Component Diagram
+`search_experiment.py` is a separate project experiment used for SLE-2. It contains its own BFS and DFS implementations and measures execution time and nodes explored on a larger test warehouse graph. It is not a separate runtime container of the Inventory Agent.
 
-The Inventory Agent is selected as the main container because it contains
-the main inventory decision-making logic of Stockholm.
+---
+
+# C4 Level 3 — Component
+
+The Inventory Agent is selected for the component-level view because it contains the main intelligent decision-making logic.
 
 ```text
-                    INVENTORY AGENT
-                    inventory_agent.py
-                           |
-                           v
-                 +-------------------+
-                 |    Perception     |
-                 |    perceive()     |
-                 +---------+---------+
-                           |
-                           v
-                 +-------------------+
-                 |  Sales Velocity   |
-                 | calculate_sales_  |
-                 |    velocity()     |
-                 +---------+---------+
-                           |
-                           v
-                 +-------------------+
-                 |  Decision Engine  |
-                 |     decide()      |
-                 +----+---------+----+
-                      |         |
-                      |         v
-                      |   +-------------------+
-                      |   | Warehouse Locator |
-                      |   | search_location() |
-                      |   +---------+---------+
-                      |             |
-                      |             v
-                      |      warehouse_search
-                      |             |
-                      |             v
-                      |             BFS
-                      |
-                      v
-                 +-------------------+
-                 |      Action       |
-                 |      act()        |
-                 +-------------------+
+                 INVENTORY AGENT
+                       |
+                       v
+                +-------------+
+                |  Perception |
+                |  perceive()  |
+                +------+------+ 
+                       |
+                       v
+             +---------------------+
+             | Sales Velocity       |
+             | calculate_sales_     |
+             | velocity()           |
+             +----------+----------+
+                        |
+                        v
+                +---------------+
+                | Decision      |
+                | Engine        |
+                | decide()      |
+                +-------+-------+
+                        |
+              +---------+---------+
+              |                   |
+              v                   v
+       +-------------+     +-------------+
+       | Plan Action |     | Warehouse   |
+       | plan_actions|     | Locator     |
+       +------+------+     | search_     |
+              |            | location()  |
+              |            +------+------+ 
+              |                   |
+              |                   v
+              |                  BFS
+              v
+       +-------------+
+       | Action      |
+       | act()       |
+       +------+------+ 
+              |
+              v
+       +-------------+
+       | Receiving   |
+       | receive_    |
+       | orders()    |
+       +-------------+
 ```
 
-### Components
+## Components
 
-#### 1. Perception
+### 1. Perception — `perceive()`
 
-**Function:** `perceive()`
+Receives the current inventory state used by the agent.
 
-Receives the current inventory data and provides the state used by the
-Inventory Agent.
+### 2. Sales Velocity Calculator — `calculate_sales_velocity()`
 
-#### 2. Sales Velocity Calculator
+Calculates sales per day from units sold and the number of days. It also avoids division by zero when the supplied number of days is zero or negative.
 
-**Function:** `calculate_sales_velocity()`
+### 3. Decision Engine — `decide()`
 
-Calculates the product's sales rate using the number of units sold and
-the number of days.
+Uses quantity, sales velocity, lead time, pending orders, base target stock and safety stock to determine:
 
-#### 3. Decision Engine
+- action
+- urgency
+- target stock
+- reorder quantity
+- reason for the decision
 
-**Function:** `decide()`
+Current actions are:
 
-Analyzes quantity, sales velocity, lead time and pending orders to determine
-the required action, urgency and reorder quantity.
+- `MONITOR`
+- `PLACE_REORDER`
+- `EMERGENCY_REORDER`
 
-Possible actions include:
+### 4. Action Planner — `plan_actions()`
 
-* `OUT_OF_STOCK`
-* `REORDER`
-* `NO_ACTION`
+Converts a decision into a simple plan, such as placing an order for the calculated quantity or continuing to monitor inventory.
 
-#### 4. Warehouse Locator
+### 5. Warehouse Locator — `search_location()`
 
-**Function:** `search_location()`
+Maps product names when necessary and calls BFS from `warehouse_search.py` to find the product's path from `Receiving`.
 
-Converts product names when required and uses the BFS search from
-`warehouse_search.py` to find the product's warehouse path.
+### 6. Action / State Update — `act()`
 
-#### 5. Action
+Updates `pending_order` when the agent decides to place a reorder.
 
-**Function:** `act()`
+### 7. Order Receiving — `receive_orders()`
 
-Processes the inventory decisions and displays the action, urgency,
-sales information, reorder quantity and product location.
+Simulates delivery by moving pending orders into available quantity and clearing the pending order.
 
-## C4 Level 4 — Code
+### 8. Agent Cycle — `run()`
 
-The following code-level elements implement the main Inventory Agent
-components:
+Coordinates perception, decision-making, planning, action, optional receiving, location lookup and output.
 
-| Code Element                 | Responsibility                                         |
-| ---------------------------- | ------------------------------------------------------ |
-| `InventoryAgent`             | Manages inventory analysis and decision-making.        |
-| `perceive()`                 | Receives the current inventory state.                  |
-| `calculate_sales_velocity()` | Calculates sales rate in units per day.                |
-| `decide()`                   | Determines action, urgency and reorder quantity.       |
-| `search_location()`          | Finds a product path using BFS.                        |
-| `act()`                      | Processes decisions and displays the final result.     |
-| `run()`                      | Executes the agent workflow from perception to action. |
+---
 
-## Design Decisions
+# C4 Level 4 — Code
 
-The system separates the web interface, backend, inventory reasoning and warehouse search
-so each part has a clear responsibility. The Inventory Agent is kept as the main reasoning
-component because it analyzes inventory data before deciding an action. Warehouse search is
-kept as a separate module so BFS can be reused by the Inventory Agent.
+| Code Element | Responsibility |
+|---|---|
+| `InventoryAgent` | Main class containing the inventory-agent logic. |
+| `__init__()` | Sets thresholds, safety-stock settings and warehouse graph. |
+| `perceive()` | Receives the current inventory state. |
+| `calculate_sales_velocity()` | Calculates units sold per day. |
+| `decide()` | Determines action, urgency, target stock, reorder quantity and reason. |
+| `plan_actions()` | Creates a simple action plan from decisions. |
+| `search_location()` | Finds a product location using BFS. |
+| `act()` | Updates pending orders for reorder decisions. |
+| `receive_orders()` | Converts pending orders into available stock. |
+| `run()` | Executes the complete agent cycle. |
 
-## AI Contribution Note
+---
+
+# Design Decisions
+
+1. **The Inventory Agent is the core of Stockholm.** The project is currently focused on intelligent inventory reasoning rather than a separate invoice or frontend application.
+2. **Warehouse search is separated from the agent.** BFS is kept in `warehouse_search.py` so the search logic has a clear responsibility.
+3. **The agent is rule-based.** This makes the current decisions transparent and easy to test while providing a foundation for future AI work.
+4. **The architecture reflects the implemented code.** Features that are not currently implemented are not represented as active system components.
+5. **Order receiving is simulated.** The current implementation updates in-memory inventory data; it does not connect to a real supplier or database.
+
+# AI Contribution Note
 
 **AI Tool Used:** ChatGPT
 
-**What AI helped with:** Understanding the C4 model, organizing the architecture levels,
-and mapping the existing Stockholm code to Context, Container, Component and Code levels.
+AI assistance was used to understand and organize the C4 architecture, review code structure, improve documentation and assist with development/debugging.
 
-**What I did myself:** I implemented and tested the project, selected the architecture,
-checked the existing files and functions, and verified that the diagrams match the actual
-Stockholm implementation.
+The student selected the project direction, implemented and tested the code, made the final architecture decisions and verified the documentation against the actual repository.
 
-## Conclusion
+# Conclusion
 
-The C4 model helped map Stockholm from its overall system context to its main code-level
-elements. The architecture clearly separates the web interface, Flask backend, Inventory
-Agent and warehouse search. It also shows how the BFS search developed during SLE-2 fits
-into the larger Stockholm system.
+The C4 model maps Stockholm from its overall context to the code-level functions of the Inventory Agent. The architecture keeps the project focused on inventory intelligence while retaining the BFS warehouse search developed during SLE-2. It provides a clean foundation for gradually adding more advanced inventory reasoning as the project develops.
