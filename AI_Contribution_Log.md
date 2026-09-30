@@ -1,124 +1,183 @@
 # AI Contribution Log
 
 ## Project
-Stockholm – Invoice and Inventory Management System
+Stockholm — Intelligent Inventory Management Agent
 
-## SLE-1: AI-Augmented Workflow
+## Purpose
 
-### Objective
-A basic rule-based inventory management agent was developed as part of the Stockholm project.
+This log records the use of AI assistance during development of the Stockholm inventory-agent project.
 
-The agent observes inventory quantities and decides whether each product requires reordering, no action, or is out of stock.
+The current implementation is a rule-based intelligent agent that analyzes inventory information, makes reorder decisions, searches warehouse locations using BFS, and updates the simulated inventory state.
 
 ---
 
-## AI Tools Used
+## AI Tool Used
 
 - ChatGPT
 
-GitHub Copilot was not used for this work.
+GitHub Copilot was not used for this project work.
 
 ---
 
-## Contribution 1 – Agent Design
+## Contribution 1 — Agent Design
 
 ### Task
-Develop a basic intelligent agent for Stockholm's inventory management system.
+
+Develop an inventory-management agent using the Perceive → Decide → Act concept.
 
 ### AI Assistance
-ChatGPT was used to suggest a basic rule-based agent structure using the Perceive → Decide → Act cycle.
+
+ChatGPT helped explain the agent structure and suggested ways to separate perception, decision-making and action.
 
 ### My Contribution
-I selected inventory management as the use case and adapted the agent to work with product names and quantities.
+
+I selected inventory management as the problem, adapted the design to Stockholm and decided which features should actually be implemented.
 
 ---
 
-## Contribution 2 – Decision Logic
+## Contribution 2 — Inventory Decision Logic
 
-### Task
-Create decision rules for inventory levels.
+The agent was developed to consider:
 
-### AI Assistance
-ChatGPT suggested conditional logic for identifying low-stock and out-of-stock products.
+- current quantity
+- units sold
+- number of days
+- supplier lead time
+- pending orders
+- base target stock
+- safety stock days
 
-### My Contribution
-I selected the low-stock threshold and tested the behaviour using different inventory quantities.
+The agent calculates sales velocity and uses these values to determine a target stock level and action.
+
+### Current Actions
+
+- `MONITOR`
+- `PLACE_REORDER`
+- `EMERGENCY_REORDER`
+
+The agent also assigns urgency and calculates the required reorder quantity.
+
+---
+
+## Contribution 3 — Explainable Decisions
+
+The agent generates a reason for each decision. This was added so that the output is not only an action label but also explains why the action was selected.
+
+Example reasoning includes the available quantity, pending order quantity, target stock and sales velocity.
+
+---
+
+## Contribution 4 — Warehouse Search
+
+The Inventory Agent uses BFS from `warehouse_search.py` to locate products in the warehouse graph.
+
+The product location is returned as a path beginning at `Receiving`.
+
+This connects the inventory agent to the BFS work developed during SLE-2.
+
+---
+
+## Contribution 5 — Inventory State Update
+
+The agent can update `pending_order` when a reorder is placed.
+
+It can also simulate receiving pending orders by moving the pending quantity into available stock and clearing the pending order.
+
+This creates a simple inventory cycle without pretending that a real supplier or database is connected.
 
 ---
 
 ## Testing
 
-The agent was tested using:
+The agent was tested with:
 
-- Products below the threshold
-- Products equal to the threshold
-- Products above the threshold
-- Products with zero quantity
-- Multiple products simultaneously
+- low stock
+- zero stock
+- sufficient stock with pending orders
+- high sales velocity
+- different lead times
+- different pending-order quantities
+- reorder followed by receiving
+- warehouse product-location searches
 
-### Test Results
-
-| Product | Quantity | Expected Action | Result |
-|---|---:|---|---|
-| Rice | 5 | REORDER | PASS |
-| Rice | 10 | REORDER | PASS |
-| Rice | 15 | NO_ACTION | PASS |
-| Sugar | 0 | OUT_OF_STOCK | PASS |
+Example test cases included Rice, Cooking Oil, Sugar and Wheat.
 
 ---
 
 ## Understanding and Ownership
 
-ChatGPT-generated suggestions were reviewed and tested before being included in the project.
+AI-generated suggestions were reviewed and tested before being included.
 
-I selected the Stockholm inventory use case, set the decision threshold, adapted the code, ran the tests, and reviewed the resulting behaviour.
+I selected the project direction, modified and tested the implementation, decided which features to keep, removed unnecessary frontend/invoice material, and verified the architecture and documentation against the actual code.
 
 I understand the purpose and working of the major components of the current agent.
 
 ---
 
-## Issues / Risks Found and Fixes
+## Issues / Risks and Fixes
 
-- The initial AI-assisted design was a simple rule-based prototype rather than a complete autonomous inventory system. This limitation was identified and documented.
-- The current agent depends on manually supplied inventory data. This was kept intentionally as the first prototype and is planned for later integration with Stockholm's application data.
+### Initial design was too broad
 
----
+The project originally contained frontend and invoice-oriented material that was not useful for the current AI-focused objective.
 
-## Current Limitations
+**Fix:** The unused frontend/invoice files were removed and the project was refocused on the inventory agent.
 
-The current agent uses manually provided inventory data and rule-based decision making.
+### Simple rule-based reasoning
 
-It is currently a prototype and is not directly connected to a production database.
+The current agent does not learn from data.
 
-It does not yet use sales history, demand prediction, supplier lead time, learning, or autonomous actions.
+**Fix:** This limitation is kept explicit. The rule-based design is being used as a foundation for future improvements.
+
+### Manual/sample inventory data
+
+The current prototype does not use a production database or live business data.
+
+**Fix:** The agent works with structured sample inventory data while the reasoning system is being developed.
 
 ---
 
 ## PEAS Description
 
-The Stockholm Inventory Agent can be described using the PEAS framework.
-
 ### Performance Measure (P)
-- Correctly identify out-of-stock products.
-- Correctly identify products requiring reorder.
-- Avoid unnecessary reorder recommendations.
+
+- Correctly identify products requiring attention.
+- Avoid unnecessary reorder recommendations when available stock plus pending orders is sufficient.
+- Calculate a reasonable target stock and reorder quantity.
+- Provide an understandable reason for each decision.
 
 ### Environment (E)
-- Stockholm's inventory management environment.
-- Products and their available quantities.
+
+- Inventory records.
+- Product sales information.
+- Pending orders.
+- Supplier lead times.
+- Simulated warehouse graph.
 
 ### Actuators (A)
-- Currently outputs the recommended action:
-  - REORDER
-  - NO_ACTION
-  - OUT_OF_STOCK
+
+The current agent can:
+
+- recommend `MONITOR`
+- recommend `PLACE_REORDER`
+- recommend `EMERGENCY_REORDER`
+- update pending orders in the simulated inventory state
+- simulate receiving pending orders
+
+It does not place real external purchase orders.
 
 ### Sensors (S)
-- Product information.
-- Current inventory quantity.
+
+The agent reads:
+
+- product name
+- current quantity
+- units sold
+- number of days
+- supplier lead time
+- pending order quantity
 
 ### Agent Type
 
-The implemented agent is a simple rule-based agent. It perceives inventory information, applies predefined decision rules, and produces an appropriate action recommendation.
+The current implementation is a **simple rule-based agent**. It perceives inventory information, applies predefined decision rules and performs simulated inventory actions.
 
-Future versions can connect the agent to Stockholm's inventory data and progressively add more informed decision-making and real actions.
+Future versions may introduce more advanced demand analysis, learning or optimization after the current reasoning system is understood and tested.
