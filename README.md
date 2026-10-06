@@ -60,7 +60,8 @@ Receive Orders
 Stockholm/
 ├── inventory_agent.py      # Main inventory agent
 ├── warehouse_search.py     # BFS warehouse search used by the agent
-├── app.py                  # Small Flask API entry point
+├── app.py                  # Flask API and browser demonstration
+├── requirements.txt        # Python dependency list
 ├── search_experiment.py    # SLE-2 BFS vs DFS experiment
 ├── architecture.md         # SLE-3 C4 architecture
 ├── sle2.md                 # SLE-2 documentation
@@ -70,13 +71,37 @@ Stockholm/
 
 ## Running the Agent
 
-Make sure Python is installed, then run:
+Make sure Python is installed.
+
+### Run the agent directly
 
 ```bash
 python inventory_agent.py
 ```
 
 The program uses sample inventory data and prints the agent's decisions, reasons, warehouse locations and inventory state after the reorder/receiving cycle.
+
+### Run the Flask demonstration
+
+Install the project dependency:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Then start the application:
+
+```bash
+python app.py
+```
+
+The Flask application provides:
+
+- a simple browser demonstration at `/`
+- `GET /api/inventory` for the sample inventory
+- `POST /api/agent` for running the inventory agent
+
+The browser demonstration uses the same Inventory Agent logic as the Python program.
 
 ## Example Decisions
 
